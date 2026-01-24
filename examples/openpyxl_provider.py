@@ -5,16 +5,14 @@ from xlea.providers.openpyxl import OpenPyXlProvider
 
 class Person(Schema):
     id = Column("ID")
-    fullname = Column("ФИО", ignore_case=True)
+    fullname = Column("ФИО")
     age = Column("Возраст")
-    city = Column("город", required=False)
 
 
 def main():
-    persons = xlea.read(OpenPyXlProvider("test_data.xlsx"), schema=Person)
-
+    persons = xlea.read(OpenPyXlProvider("examples/test_data.xlsx"), schema=Person)
     for p in persons:
-        print(p.fullname, p.age, p.id)
+        print(p)
 
 
 if __name__ == "__main__":

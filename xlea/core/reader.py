@@ -1,7 +1,8 @@
 from typing import overload, Iterable, Type, Optional, Union
 
 from xlea.core.types import TSchema
-from xlea.core.row import Row
+from xlea.core.row import make_row_type
+from xlea.core.bound_schema import BoundSchema
 from xlea.providers.proto import ProviderProto
 
 
@@ -23,13 +24,13 @@ def read(
     if schema is None:
         return rows
 
-    resolved_schema = schema(rows).resolve()
+    resolved_schema = BoundSchema(rows, schema).resolve()
+    RowType = make_row_type(schema)
 
     bound = []
     for r in rows:
-        obj = Row(r, resolved_schema)
-        obj.__class__ = resolved_schema
-        bound.append(obj)
+        bound.append(RowType(r, resolved_schema))
+
     return bound
 
 

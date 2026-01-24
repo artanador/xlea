@@ -1,41 +1,59 @@
-from xlea.core.schema import Schema
+from xlea.core.bound_schema import BoundSchema
 
 
-class Row:
-    def __init__(self, row, schema: type[Schema]):
+def make_row_type(schema):
+    class Row(schema, RowObject):
+        pass
+
+    return Row
+
+
+class RowObject:
+    def __init__(self, row, schema: BoundSchema):
         self._row = row
         self._schema = schema
+        self._col_names = (c._name for c in self._schema._columns.values())
+        self._indeces_by_names = {
+            c._name: c.index for c in self._schema._columns.values()
+        }
 
-    def asdict(self):
-        return self._resolved
-
-    def __getattr__(self, name):
-        if name in self._resolved:
-            return self._resolved[name]
-        raise AttributeError(name)
+    def __contains__(self, key):
+        return key in self._col_names
 
     def __getitem__(self, key):
         if isinstance(key, str):
             if key in self._col_names:
-                return self._resolved[self._col_names[key]]
+                return self._row[self._indeces_by_names[key]]
             raise KeyError(key)
 
         if isinstance(key, int):
-            return tuple(self._resolved.values())[key]
-
-    def __contains__(self, key):
-        return key in self._col_names.values()
+            index = tuple(sorted(self._indeces_by_names.values()))[key]
+            return self._row[index]
 
     def __dir__(self):
-        return list(self._resolved.keys())
+        return list(self._schema._columns.keys())
 
     def __len__(self):
-        return len(self._resolved)
+        return len(self._schema._columns)
 
     def __eq__(self, other):
-        if isinstance(other, Row):
+        if isinstance(other, RowObject):
             return self.asdict() == other.asdict()
         if isinstance(other, dict):
             return self.asdict() == other
 
         return False
+
+    def __repr__(self):
+        values = ", ".join(
+            [
+                f"{attr}: {self._row[col.index]}"
+                for attr, col in self._schema._columns.items()
+            ]
+        )
+        return f"{self._schema._schema.__name__}({values})"
+
+    def asdict(self):
+        return {
+            name: self._row[col.index] for name, col in self._schema._columns.items()
+        }

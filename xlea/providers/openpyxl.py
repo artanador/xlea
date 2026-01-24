@@ -2,8 +2,8 @@ from typing import Optional
 
 import openpyxl
 
-from xleb.providers.proto import ProviderProto
-from xleb.exc import ProviderError
+from xlea.providers.proto import ProviderProto
+from xlea.exc import ProviderError
 
 
 class OpenPyXlProvider(ProviderProto):
