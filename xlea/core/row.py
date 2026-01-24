@@ -9,8 +9,9 @@ def make_row_type(schema):
 
 
 class RowObject:
-    def __init__(self, row, schema: BoundSchema):
+    def __init__(self, row, row_idx, schema: BoundSchema):
         self._row = row
+        self._row_idx = row_idx
         self._schema = schema
         self._col_names = (c._name for c in self._schema._columns.values())
         self._indeces_by_names = {
@@ -53,7 +54,12 @@ class RowObject:
         )
         return f"{self._schema._schema.__name__}({values})"
 
+    @property
+    def row_index(self) -> int:
+        return self._row_idx
+
     def asdict(self):
         return {
-            name: self._row[col.index] for name, col in self._schema._columns.items()
+            name: col._default if col.index is None else self._row[col.index]
+            for name, col in self._schema._columns.items()
         }

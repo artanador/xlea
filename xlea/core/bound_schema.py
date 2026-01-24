@@ -32,7 +32,7 @@ class BoundSchema:
 
         for col in self._columns.values():
             for idx, val in enumerate(header):
-                if val != col._name:
+                if not col.matching(val):
                     continue
                 col._set_index(idx)
 

@@ -28,8 +28,8 @@ def read(
     RowType = make_row_type(schema)
 
     bound = []
-    for r in rows:
-        bound.append(RowType(r, resolved_schema))
+    for i, row in enumerate(rows):
+        bound.append(RowType(row, i, resolved_schema))
 
     return bound
 
