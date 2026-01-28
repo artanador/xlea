@@ -1,9 +1,15 @@
 from typing import Optional
 
-import openpyxl
+from xlea.exc import ProviderError
+
+try:
+    import openpyxl
+except ImportError:
+    raise ProviderError(
+        "openpyxl not found, ensure that you installed it:\npip install openpyxl"
+    )
 
 from xlea.providers.proto import ProviderProto
-from xlea.exc import ProviderError
 
 
 class OpenPyXlProvider(ProviderProto):

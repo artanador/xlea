@@ -13,7 +13,7 @@ class RowObject:
         self._row = row
         self._row_idx = row_idx
         self._schema = schema
-        self._col_names = (c._name for c in self._schema._columns.values())
+        self._col_names = tuple(c._name for c in self._schema._columns.values())
         self._indeces_by_names = {
             c._name: c.index for c in self._schema._columns.values()
         }
@@ -48,7 +48,7 @@ class RowObject:
     def __repr__(self):
         values = ", ".join(
             [
-                f"{attr}: {self._row[col.index]}"
+                f"{attr}: {None if col.index is None else self._row[col.index]}"
                 for attr, col in self._schema._columns.items()
             ]
         )
@@ -59,7 +59,4 @@ class RowObject:
         return self._row_idx
 
     def asdict(self):
-        return {
-            name: col._default if col.index is None else self._row[col.index]
-            for name, col in self._schema._columns.items()
-        }
+        return {name: getattr(self, name) for name in self._schema._columns.keys()}
