@@ -1,4 +1,5 @@
-from typing import Iterable
+import enum
+from typing import Iterable, Union
 from xlea.core.column import _Column
 from xlea.exc import HeaderNotFound, MissingRequiredColumnError
 
@@ -37,9 +38,7 @@ class BoundSchema:
         }
 
     def resolve(self):
-        required_set = {
-            c._name.casefold() for c in self._columns.values() if c._required
-        }
+        required = tuple(c for c in self._columns.values() if c._required)
 
         delimiter = self._config.get("delimiter", ";")
         header_rows = self._config.get("header_rows", 1)
@@ -48,8 +47,7 @@ class BoundSchema:
             current_row = tuple(str(v) for v in r)
             pretendents = [current_row]
             if header_rows == 1:
-                header = current_row
-                result = set(val.casefold() for val in current_row)
+                header = tuple(str(val) for val in current_row)
             else:
                 for hr in range(1, header_rows):
                     if i + hr >= len(self._rows):
@@ -60,9 +58,8 @@ class BoundSchema:
                     list(zip(*pretendents)),
                     delimiter=delimiter,
                 )
-                result = set(val.casefold() for val in header)
 
-            if required_set.issubset(result):
+            if self._is_header(required, header):
                 self._data_row = i + header_rows
                 break
             header = None
@@ -75,10 +72,22 @@ class BoundSchema:
                 if not col.matching(val):
                     continue
                 col._set_index(idx)
+                col._set_name(val)
 
             if col._required and col.index == -1:
                 raise MissingRequiredColumnError(
-                    f"Cant find required column '{col._name}'"
+                    f"Cant find required column '{col._pattern}'"
                 )
 
         return self
+
+    def _is_header(
+        self,
+        required: tuple[_Column, ...],
+        row: Union[tuple[str, ...], list],
+    ) -> bool:
+        for val in row:
+            if not any(c.matching(val) for c in required):
+                return False
+
+        return True

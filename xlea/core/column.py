@@ -1,3 +1,5 @@
+from re import Pattern
+import re
 from typing import Any, Generic, Optional, TypeVar, Union, overload
 
 T = TypeVar("T")
@@ -5,19 +7,26 @@ T = TypeVar("T")
 
 @overload
 def Column(  # type: ignore[reportInconsistentOverload]
-    name: str,
+    pattern: Union[str, Pattern[str]],
     ignore_case: bool = False,
     required: bool = True,
     default: Optional[T] = None,
+    regexp: bool = False,
 ) -> T: ...
 def Column(
-    name: str,
+    pattern: Union[str, Pattern[str]],
     ignore_case: bool = False,
     required: bool = True,
     default: Optional[T] = None,
+    regexp: bool = False,
 ) -> Any:
+    if isinstance(pattern, str) and regexp:
+        pattern = re.compile(pattern, flags=re.IGNORECASE if ignore_case else 0)
     return _Column(
-        name=name, ignore_case=ignore_case, required=required, default=default
+        pattern=pattern,
+        ignore_case=ignore_case,
+        required=required,
+        default=default,
     )
 
 
@@ -30,8 +39,8 @@ class _Column(Generic[T]):
 
     Parameters
     ----------
-    name : str
-        Column name or hierarchical path in the header.
+    pattern: str | Pattern[str]
+        Column name (or pattern) or hierarchical path in the header.
     required : bool, default=True
         Whether the column must be present.
     default : Any, optional
@@ -60,16 +69,17 @@ class _Column(Generic[T]):
 
     def __init__(
         self,
-        name: str,
+        pattern: Union[str, Pattern[str]],
         ignore_case: bool = False,
         required: bool = True,
         default: Optional[T] = None,
-    ) -> Any:
-        self._name = name
-        self._default = default
+    ) -> None:
+        self._pattern = pattern
         self._ignore_case = ignore_case
         self._required = required
+        self._default = default
         self._index = None
+        self._name = None
         self._attr_name = None
         self._type: Optional[T] = None
 
@@ -91,13 +101,24 @@ class _Column(Generic[T]):
         return value
 
     def matching(self, value: str) -> bool:
-        if self._ignore_case:
-            return value.casefold() == self._name.casefold()
-        return value == self._name
+        if self._ignore_case and isinstance(self._pattern, str):
+            return value.casefold() == self._pattern.casefold()
+
+        if isinstance(self._pattern, Pattern):
+            return re.search(self._pattern, value) is not None
+
+        return value == self._pattern
 
     @property
     def index(self) -> Union[int, None]:
         return self._index
 
+    @property
+    def name(self) -> Union[str, None]:
+        return self._name
+
     def _set_index(self, value: int):
         self._index = value
+
+    def _set_name(self, value: str):
+        self._name = value

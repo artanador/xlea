@@ -13,9 +13,9 @@ class RowObject:
         self._row = row
         self._row_idx = row_idx
         self._schema = schema
-        self._col_names = tuple(c._name for c in self._schema._columns.values())
+        self._col_names = tuple(c.name for c in self._schema._columns.values())
         self._indeces_by_names = {
-            c._name: c.index for c in self._schema._columns.values()
+            c.name: c.index for c in self._schema._columns.values()
         }
 
     def __contains__(self, key):
@@ -48,7 +48,7 @@ class RowObject:
     def __repr__(self):
         values = ", ".join(
             [
-                f"{attr}: {None if col.index is None else self._row[col.index]}"
+                f"{attr} ({col.name}): {None if col.index is None else self._row[col.index]}"
                 for attr, col in self._schema._columns.items()
             ]
         )
