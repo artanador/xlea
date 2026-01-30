@@ -10,7 +10,7 @@ def _flatten_pretendents(pretendents, carry_indices=(0,), delimiter=";"):
     for p in pretendents:
         parts = []
         for i, v in enumerate(p):
-            if str(v).casefold() == "none":
+            if str(v).casefold() in ("none", ""):
                 if i in carry_indices and i in last_not_none:
                     v = last_not_none[i]
                 else:
