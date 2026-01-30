@@ -12,3 +12,7 @@ class HeaderNotFound(XLEAError):
 
 class MissingRequiredColumnError(XLEAError):
     pass
+
+
+class InvalidRowError(XLEAError):
+    pass

@@ -13,6 +13,7 @@ def Column(  # type: ignore[reportInconsistentOverload]
     required: bool = True,
     default: Optional[T] = None,
     regexp: bool = False,
+    validator: Union[Callable[[str], bool], None] = None,
 ) -> T: ...
 def Column(
     pattern: Union[str, Pattern[str], Callable[[str], bool]],
@@ -20,6 +21,7 @@ def Column(
     required: bool = True,
     default: Optional[T] = None,
     regexp: bool = False,
+    validator: Union[Callable[[str], bool], None] = None,
 ) -> Any:
     if isinstance(pattern, str) and regexp:
         pattern = re.compile(pattern, flags=re.IGNORECASE if ignore_case else 0)
@@ -36,6 +38,7 @@ def Column(
         ignore_case=ignore_case,
         required=required,
         default=default,
+        validator=validator,
     )
 
 
@@ -82,11 +85,14 @@ class _Column(Generic[T]):
         ignore_case: bool = False,
         required: bool = True,
         default: Optional[T] = None,
+        validator: Union[Callable[[str], bool], None] = None,
     ) -> None:
         self._pattern = pattern
         self._ignore_case = ignore_case
         self._required = required
         self._default = default
+        self._validator = validator
+
         self._index = None
         self._name = None
         self._attr_name = None
@@ -120,6 +126,12 @@ class _Column(Generic[T]):
             return self._pattern(value)
 
         return value == self._pattern
+
+    def validate_value(self, value: str) -> bool:
+        if self._validator is None:
+            return True
+
+        return self._validator(value)
 
     @property
     def index(self) -> Union[int, None]:
