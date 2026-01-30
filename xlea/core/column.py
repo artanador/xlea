@@ -1,20 +1,21 @@
-from re import Pattern
 import re
-from typing import Any, Generic, Optional, TypeVar, Union, overload
+from re import Pattern
+import warnings
+from typing import Any, Callable, Generic, Optional, TypeVar, Union, overload
 
 T = TypeVar("T")
 
 
 @overload
 def Column(  # type: ignore[reportInconsistentOverload]
-    pattern: Union[str, Pattern[str]],
+    pattern: Union[str, Pattern[str], Callable[[str], bool]],
     ignore_case: bool = False,
     required: bool = True,
     default: Optional[T] = None,
     regexp: bool = False,
 ) -> T: ...
 def Column(
-    pattern: Union[str, Pattern[str]],
+    pattern: Union[str, Pattern[str], Callable[[str], bool]],
     ignore_case: bool = False,
     required: bool = True,
     default: Optional[T] = None,
@@ -22,6 +23,14 @@ def Column(
 ) -> Any:
     if isinstance(pattern, str) and regexp:
         pattern = re.compile(pattern, flags=re.IGNORECASE if ignore_case else 0)
+    if isinstance(pattern, Pattern) and ignore_case:
+        warnings.warn(
+            "When a Pattern object is passed to the 'pattern' argument, "
+            "'ignore_case' has no effect. Its value is ignored. "
+            "To hide this warning, set 'ignore_case' to False.",
+            UserWarning,
+            stacklevel=2,
+        )
     return _Column(
         pattern=pattern,
         ignore_case=ignore_case,
@@ -39,8 +48,8 @@ class _Column(Generic[T]):
 
     Parameters
     ----------
-    pattern: str | Pattern[str]
-        Column name (or pattern) or hierarchical path in the header.
+    pattern: str | Pattern[str] | Callable[[str], bool]
+        Column name (or pattern, or callable) or hierarchical path in the header.
     required : bool, default=True
         Whether the column must be present.
     default : Any, optional
@@ -69,7 +78,7 @@ class _Column(Generic[T]):
 
     def __init__(
         self,
-        pattern: Union[str, Pattern[str]],
+        pattern: Union[str, Pattern[str], Callable[[str], bool]],
         ignore_case: bool = False,
         required: bool = True,
         default: Optional[T] = None,
@@ -106,6 +115,9 @@ class _Column(Generic[T]):
 
         if isinstance(self._pattern, Pattern):
             return re.search(self._pattern, value) is not None
+
+        if callable(self._pattern):
+            return self._pattern(value)
 
         return value == self._pattern
 
