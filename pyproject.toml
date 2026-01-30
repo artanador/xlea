@@ -1,7 +1,7 @@
 [project]
 name = "xlea"
-version = "0.1.0"
-description = "Add your description here"
+version = "1.0.0"
+description = "python library that makes it easy to convert Excel tables into ORM-like objects"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
@@ -9,3 +9,10 @@ dependencies = [
     "pyxlsb>=1.0.10",
     "xlrd>=2.0.2",
 ]
+authors = [
+    { name = "ArtemDorozhkin", email = "artanador@tutamail.com" }
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

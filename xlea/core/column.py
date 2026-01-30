@@ -26,6 +26,58 @@ def Column(
     validator: Union[Callable[[str], bool], None] = None,
     skip_invalid_row=False,
 ) -> Any:
+    """
+    Declare a column mapping within a schema.
+
+    ``Column`` is a descriptor that defines how a column is identified
+    in the header, validated, converted, and exposed as an attribute
+    on schema instances.
+
+    Parameters
+    ----------
+    pattern : str | Pattern[str] | Callable[[str], bool]
+        Header matching strategy:
+
+        - ``str``: exact column name match
+        - ``Pattern``: regular expression applied to header values
+        - ``Callable``: custom predicate receiving a header cell value
+          and returning ``True`` if it matches
+    ignore_case : bool, default=False
+        Whether string-based matching should be case-insensitive.
+        Has no effect when ``pattern`` is a compiled regular expression.
+    required : bool, default=True
+        Whether the column must be present in the header.
+    default : Any, optional
+        Default value returned when the column is missing or unresolved.
+    regexp : bool, default=False
+        If ``True`` and ``pattern`` is a string, it is compiled into
+        a regular expression.
+    validator : Callable[[str], bool], optional
+        Optional value-level validator. Called on the raw cell value
+        before type conversion.
+    skip_invalid_row : bool, default=False
+        Whether rows with invalid values for this column should be skipped
+        entirely during iteration.
+
+    Returns
+    -------
+    Any
+        A column descriptor bound to the owning schema class.
+
+    Warnings
+    --------
+    UserWarning
+        Raised when ``ignore_case`` is set while passing a compiled
+        regular expression as ``pattern``. In this case, ``ignore_case``
+        is ignored.
+
+    Notes
+    -----
+    Type conversion is driven by the owning schema's type annotations.
+    If an annotation is present, the raw value is converted using the
+    annotated type.
+    """
+
     if isinstance(pattern, str) and regexp:
         pattern = re.compile(pattern, flags=re.IGNORECASE if ignore_case else 0)
     if isinstance(pattern, Pattern) and ignore_case:

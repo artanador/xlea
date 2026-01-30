@@ -4,42 +4,33 @@ from xlea.core.constants import DEFAULT_DELIMITER
 
 def config(header_rows: int = 1, delimiter: str = DEFAULT_DELIMITER, **options):
     """
-    Configure schema-level parsing behavior.
+    Configure a schema class with file-level parsing options.
 
-    This decorator attaches parsing configuration to a ``Schema`` subclass.
-    Configuration affects how headers are interpreted, how column paths are
-    resolved and how raw rows are processed before mapping.
+    This decorator attaches configuration metadata to a schema class.
+    The configuration is later consumed by the schema binding and parsing
+    machinery to control how input data is interpreted.
 
     Parameters
     ----------
     header_rows : int, default=1
-        Number of rows used to build the header.
+        Number of header rows at the beginning of the file. These rows
+        are used for column resolution and are not treated as data rows.
     delimiter : str, default=DEFAULT_DELIMITER
-        Delimiter used to split hierarchical column paths.
+        Field delimiter used by the underlying provider.
     **options
-        Reserved for future extensions.
+        Arbitrary additional configuration options. All keyword arguments
+        are stored verbatim and made available to the schema resolver.
 
     Returns
     -------
-    Callable[[type[Schema]], type[Schema]]
-        Decorated schema class.
+    Callable[[type], type]
+        A class decorator that mutates the target schema class in-place
+        by attaching the ``__schema_config__`` attribute.
 
     Notes
     -----
-    Configuration is inherited by subclasses unless overridden.
-
-    Examples
-    --------
-    Multi-level headers::
-
-        @config(header_rows=2, delimiter=";")
-        class Person(Schema):
-            fullname = Column("profile;fio")
-
-    Default configuration::
-
-        class Product(Schema):
-            id = Column("ID")
+    Configuration is stored on the schema class itself and is inherited
+    by subclasses unless explicitly overridden.
     """
 
     def decorator(schema):
@@ -57,30 +48,18 @@ def config(header_rows: int = 1, delimiter: str = DEFAULT_DELIMITER, **options):
 
 class Schema(RowObject):
     """
-    Base class for row-to-object mapping.
+    Base class for declarative row schemas.
 
-    A schema defines how a single row of tabular data is converted into a
-    Python object. Each ``Column`` declared on the class corresponds to a
-    field in the resulting instance.
+    A schema defines how a raw row produced by a provider should be mapped
+    to a structured Python object. Subclasses typically declare ``Column``
+    descriptors and type annotations to describe expected columns and
+    their target types.
 
-    Notes
-    -----
-    - Schema instances are representations of a single row.
-    - Values are accessible both as attributes and via ``asdict()``.
-
-    Examples
-    --------
-    Defining a schema::
-
-        class Person(Schema):
-            id = Column("ID")
-            name = Column("Name")
-
-    Accessing data::
-
-        person = persons[0]
-        print(person.name)
-        print(person.asdict())
+    Attributes
+    ----------
+    __schema_config__ : dict
+        Schema-level configuration populated by the ``@config`` decorator.
+        Used internally during schema resolution.
     """
 
     __schema_config__: dict = {}

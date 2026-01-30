@@ -23,67 +23,26 @@ def read(
     schema: Optional[Type[TSchema]] = None,
 ) -> Union[Iterable[Iterable], Iterator[TSchema]]:
     """
-    Read tabular data from a provider and map rows to schema instances.
-
-    The function consumes an arbitrary data provider and converts each
-    data row into an instance of the given `Schema` subclass.
-    Column mapping, header resolution and value normalization are
-    fully driven by schema configuration.
+    Read rows from a provider and optionally bind them to a schema.
 
     Parameters
     ----------
     provider : ProviderProto
-        Data source provider. Must implement the ``ProviderProto`` protocol
-        and yield rows as iterables of cell values.
-    schema : type[Schema]
-        Schema class describing how columns should be extracted and mapped.
+        Data provider instance producing raw rows.
+    schema : type, optional
+        Schema class used to map rows into structured objects.
 
     Returns
     -------
-    list[schema]
-        A list of schema instances, one per data row.
-
-    Raises
-    ------
-    ProviderError
-        If provider fails to read data.
-    HeaderNotFound
-        If header not found.
-    MissingRequireColumnError
-        If required columns are missing or values cannot be parsed.
+    Iterable[Iterable]
+        Raw rows if no schema is provided.
+    Iterator[TSchema]
+        Iterator of schema instances if a schema is provided.
 
     Notes
     -----
-    - Header rows are determined by the schema configuration (see ``@config``).
-    - Column names may be hierarchical (e.g. ``"profile;name"``).
-
-    Examples
-    --------
-    Basic usage with an ``OpenPyXlProvider`` provider::
-
-        from xlea import read, Schema, Column
-        from xlea.providers.openpyxl import OpenPyXlProvider
-
-        class Person(Schema):
-            id = Column("ID")
-            name = Column("Name")
-            age = Column("Age")
-
-        persons = read(
-            OpenPyXlProvider("people.xlsx"),
-            schema=Person
-        )
-
-        for person in persons:
-            print(person.name, person.age)
-
-    Using schema configuration and defaults::
-
-        @config(header_rows=2)
-        class Person(Schema):
-            city = Column("City", required=False, default="Moscow")
-
-        persons = read(provider, schema=Person)
+    When a schema is supplied, rows are buffered internally to allow
+    header resolution before data iteration begins.
     """
 
     rows = provider.rows()
@@ -124,6 +83,31 @@ def autoread(
     *,
     schema: Optional[Type[TSchema]] = None,
 ) -> Union[Iterable[Iterable], Iterator[TSchema]]:
+    """
+    Automatically select a provider based on file extension and read data.
+
+    Parameters
+    ----------
+    path : str | Path
+        Path to the input file.
+    sheet : str, optional
+        Sheet name for multi-sheet formats (e.g. spreadsheets).
+    schema : type, optional
+        Schema class used to map rows into structured objects.
+
+    Returns
+    -------
+    Iterable[Iterable]
+        Raw rows if no schema is provided.
+    Iterator[TSchema]
+        Iterator of schema instances if a schema is provided.
+
+    Raises
+    ------
+    UnknownFileExtensionError
+        If no provider is registered for the given file extension.
+    """
+
     if isinstance(path, str):
         path = Path(path)
 
