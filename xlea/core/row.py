@@ -29,6 +29,8 @@ class RowObject:
 
     def _validate(self, row, schema: BoundSchema) -> tuple[bool, bool, Optional[int]]:
         for col in schema._columns.values():
+            if col.index is None:
+                continue
             valid = col.validate_value(row[col.index])
             if not valid:
                 return False, col._skip_invalid_row, col.index

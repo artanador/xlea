@@ -1,7 +1,8 @@
 from xlea.core.row import RowObject
+from xlea.core.constants import DEFAULT_DELIMITER
 
 
-def config(header_rows: int = 1, delimiter: str = ";", **options):
+def config(header_rows: int = 1, delimiter: str = DEFAULT_DELIMITER, **options):
     """
     Configure schema-level parsing behavior.
 
@@ -13,7 +14,7 @@ def config(header_rows: int = 1, delimiter: str = ";", **options):
     ----------
     header_rows : int, default=1
         Number of rows used to build the header.
-    delimiter : str, default=";"
+    delimiter : str, default=DEFAULT_DELIMITER
         Delimiter used to split hierarchical column paths.
     **options
         Reserved for future extensions.

@@ -1,9 +1,12 @@
 from typing import Iterator, overload, Iterable, Type, Optional, Union
+from pathlib import Path
 
 from xlea.core.types import TSchema
 from xlea.core.row import make_row_type
 from xlea.core.bound_schema import BoundSchema
 from xlea.providers.proto import ProviderProto
+from xlea.providers import providers
+from xlea.exc import UnknownFileExtensionError
 
 
 @overload
@@ -83,10 +86,13 @@ def read(
         persons = read(provider, schema=Person)
     """
 
-    rows = tuple(provider.rows())
+    rows = provider.rows()
 
     if schema is None:
         return rows
+
+    if not isinstance(rows, tuple):
+        rows = tuple(rows)
 
     resolved_schema = BoundSchema(rows, schema).resolve()
     RowType = make_row_type(schema)
@@ -98,4 +104,39 @@ def read(
         yield row_object
 
 
-__all__ = ("read",)
+@overload
+def autoread(
+    path: Union[str, Path],
+    sheet: Optional[str] = None,
+    *,
+    schema: None = None,
+) -> Iterable[Iterable]: ...
+@overload
+def autoread(
+    path: Union[str, Path],
+    sheet: Optional[str] = None,
+    *,
+    schema: Type[TSchema],
+) -> Iterator[TSchema]: ...
+def autoread(
+    path: Union[str, Path],
+    sheet: Optional[str] = None,
+    *,
+    schema: Optional[Type[TSchema]] = None,
+) -> Union[Iterable[Iterable], Iterator[TSchema]]:
+    if isinstance(path, str):
+        path = Path(path)
+
+    provider = providers.select_by_extension(path.suffix)
+    if not provider:
+        raise UnknownFileExtensionError(
+            f"Cant find provider for extension {path.suffix}"
+        )
+
+    provider = provider(path, sheet)
+    if schema is None:
+        return read(provider)
+    return read(provider, schema)
+
+
+__all__ = ("read", "autoread")

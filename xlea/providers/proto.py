@@ -32,4 +32,6 @@ class ProviderProto(Protocol):
         persons = read(ListProvider(), schema=Person)
     """
 
+    def __init__(*args, **kwargs): ...
+
     def rows(self) -> Iterable[Iterable]: ...

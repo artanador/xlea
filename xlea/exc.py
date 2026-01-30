@@ -16,3 +16,7 @@ class MissingRequiredColumnError(XLEAError):
 
 class InvalidRowError(XLEAError):
     pass
+
+
+class UnknownFileExtensionError(XLEAError):
+    pass

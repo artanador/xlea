@@ -1,5 +1,6 @@
 import re
 from re import Pattern
+from sys import excepthook
 import warnings
 from typing import Any, Callable, Generic, Optional, TypeVar, Union, overload
 
@@ -116,7 +117,13 @@ class _Column(Generic[T]):
 
         value = instance._row[self._index]
         if self._type is not None:
-            return self._type(value)
+            try:
+                return self._type(value)
+            except ValueError:
+                raise TypeError(
+                    f"invalid value {value!r} in row {self._index}: "
+                    f"expected type {self._type.__name__}, got {type(value).__name__}"
+                )
 
         return value
 
@@ -146,8 +153,10 @@ class _Column(Generic[T]):
     def name(self) -> Union[str, None]:
         return self._name
 
-    def _set_index(self, value: int):
+    @index.setter
+    def index(self, value: int):
         self._index = value
 
-    def _set_name(self, value: str):
+    @name.setter
+    def name(self, value: str):
         self._name = value
