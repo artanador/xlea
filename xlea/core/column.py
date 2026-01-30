@@ -14,6 +14,7 @@ def Column(  # type: ignore[reportInconsistentOverload]
     default: Optional[T] = None,
     regexp: bool = False,
     validator: Union[Callable[[str], bool], None] = None,
+    skip_invalid_row=False,
 ) -> T: ...
 def Column(
     pattern: Union[str, Pattern[str], Callable[[str], bool]],
@@ -22,6 +23,7 @@ def Column(
     default: Optional[T] = None,
     regexp: bool = False,
     validator: Union[Callable[[str], bool], None] = None,
+    skip_invalid_row=False,
 ) -> Any:
     if isinstance(pattern, str) and regexp:
         pattern = re.compile(pattern, flags=re.IGNORECASE if ignore_case else 0)
@@ -39,6 +41,7 @@ def Column(
         required=required,
         default=default,
         validator=validator,
+        skip_invalid_row=skip_invalid_row,
     )
 
 
@@ -86,12 +89,14 @@ class _Column(Generic[T]):
         required: bool = True,
         default: Optional[T] = None,
         validator: Union[Callable[[str], bool], None] = None,
+        skip_invalid_row=False,
     ) -> None:
         self._pattern = pattern
         self._ignore_case = ignore_case
         self._required = required
         self._default = default
         self._validator = validator
+        self._skip_invalid_row = skip_invalid_row
 
         self._index = None
         self._name = None

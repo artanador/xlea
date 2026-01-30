@@ -12,11 +12,13 @@ def make_row_type(schema):
 
 class RowObject:
     def __init__(self, row, row_idx, schema: BoundSchema):
-        valid, col_index = self._validate(row, schema)
-        if not valid:
+        valid, skip, col_index = self._validate(row, schema)
+        if not valid and not skip:
             raise InvalidRowError(
                 f"The value in row {row_idx} failed validation: {row[col_index]}"
             )
+        if not valid:
+            return
         self._row = row
         self._row_idx = row_idx
         self._schema = schema
@@ -25,11 +27,12 @@ class RowObject:
             c.name: c.index for c in self._schema._columns.values()
         }
 
-    def _validate(self, row, schema: BoundSchema) -> tuple[bool, Optional[int]]:
+    def _validate(self, row, schema: BoundSchema) -> tuple[bool, bool, Optional[int]]:
         for col in schema._columns.values():
-            if not col.validate_value(row[col.index]):
-                return False, col.index
-        return True, None
+            valid = col.validate_value(row[col.index])
+            if not valid:
+                return False, col._skip_invalid_row, col.index
+        return True, False, None
 
     def __contains__(self, key):
         return key in self._col_names

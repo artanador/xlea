@@ -92,7 +92,10 @@ def read(
     RowType = make_row_type(schema)
 
     for i, row in enumerate(rows[resolved_schema._data_row :]):
-        yield RowType(row, i, resolved_schema)
+        row_object = RowType(row, i, resolved_schema)
+        if not hasattr(row_object, "row_index"):
+            continue
+        yield row_object
 
 
 __all__ = ("read",)
