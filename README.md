@@ -9,27 +9,35 @@ The library focised on **schema-driven** parsing of tabular data, where column r
 ## Features
 
 - Declarative schema definition
+
 Describe tabular data using Python classes with type annotations and column descriptors.
 
 - Automatic column resolution
+
 Columns are matched by name, regular expression, or custom predicate — no hard-coded indexes.
 
 - Type-driven value conversion
+
 Cell values are automatically cast using schema type annotations with explicit error reporting.
 
 - Header-aware parsing
+
 Support for multi-row headers and complex header layouts via schema configuration.
 
 - Pluggable provider architecture
+
 File formats are handled by interchangeable providers, selected automatically by file extension.
 
 - Excel formats out of the box
+
 Native support for .xlsx, .xls, and .xlsb via dedicated providers.
 
 - Row-level validation
+
 Custom validators can be attached to columns to enforce domain-specific constraints.
 
 - Graceful handling of invalid data
+
 Optionally skip rows with invalid values instead of failing the entire read.
 
 ## Installation
