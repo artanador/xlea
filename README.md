@@ -32,6 +32,12 @@ Custom validators can be attached to columns to enforce domain-specific constrai
 - Graceful handling of invalid data
 Optionally skip rows with invalid values instead of failing the entire read.
 
+## Installation
+
+```bash
+pip install xlea
+```
+
 ## Example
 
 ### Defining a Schema
