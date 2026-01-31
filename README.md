@@ -4,7 +4,7 @@
 
 The library focised on **schema-driven** parsing of tabular data, where column resolution, validation and type conversion are handled explicitly and predictably.
 
-> ⚠️ XLEAA is a work in progress. The public API is stabilizing, and core concepts are already in place.
+> ⚠️ XLEA is a work in progress. The public API is stabilizing, and core concepts are already in place.
 
 ## Features
 
