@@ -27,7 +27,7 @@ class BoundSchema:
         row: Union[tuple[str, ...], list],
     ) -> bool:
         for c in required:
-            if not any(c.matching(val) for val in row):
+            if not any(c.matching(str(val)) for val in row):
                 return False
 
         return True
@@ -35,7 +35,7 @@ class BoundSchema:
     def _bind_columns(self, header):
         for col in self._columns.values():
             for idx, val in enumerate(header):
-                if not col.matching(val):
+                if not col.matching(str(val)):
                     continue
                 col.index = idx
                 col.name = val

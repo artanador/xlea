@@ -79,7 +79,7 @@ def Column(
     """
 
     if isinstance(pattern, str) and regexp:
-        pattern = re.compile(pattern, flags=re.IGNORECASE if ignore_case else 0)
+        pattern = re.compile(pattern)
     if isinstance(pattern, Pattern) and ignore_case:
         warnings.warn(
             "When a Pattern object is passed to the 'pattern' argument, "
@@ -180,6 +180,8 @@ class _Column(Generic[T]):
         return value
 
     def matching(self, value: str) -> bool:
+        assert isinstance(value, str), "value must be a str"
+
         if self._ignore_case and isinstance(self._pattern, str):
             return value.casefold() == self._pattern.casefold()
 
