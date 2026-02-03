@@ -1,8 +1,9 @@
 import re
 from re import Pattern
-from sys import excepthook
 import warnings
 from typing import Any, Callable, Generic, Optional, TypeVar, Union, overload
+
+from xlea.exc import IncompatibleReturnValueTypeError
 
 T = TypeVar("T")
 
@@ -193,11 +194,18 @@ class _Column(Generic[T]):
 
         return value == self._pattern
 
-    def validate_value(self, value: str) -> bool:
+    def validate_value(self, value: Any) -> bool:
         if self._validator is None:
             return True
 
-        return self._validator(value)
+        result = self._validator(value)
+        if not isinstance(result, bool):
+            return_type = type(result).__name__
+            raise IncompatibleReturnValueTypeError(
+                f"The validator function must return bool, not {return_type}"
+            )
+
+        return result
 
     @property
     def index(self) -> Union[int, None]:

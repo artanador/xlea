@@ -20,3 +20,7 @@ class InvalidRowError(XLEAError):
 
 class UnknownFileExtensionError(XLEAError):
     pass
+
+
+class IncompatibleReturnValueTypeError(XLEAError):
+    pass
