@@ -4,11 +4,7 @@ version = "1.0.0"
 description = "python library that makes it easy to convert Excel tables into ORM-like objects"
 readme = "README.md"
 requires-python = ">=3.9"
-dependencies = [
-    "openpyxl>=3.1.5",
-    "pyxlsb>=1.0.10",
-    "xlrd>=2.0.2",
-]
+dependencies = []
 authors = [
     { name = "ArtemDorozhkin", email = "artanador@tutamail.com" }
 ]
@@ -16,3 +12,14 @@ authors = [
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[project.optional-dependencies]
+openpyxl = ["openpyxl>=3.1.5"]
+pyxlsb = ["pyxlsb>=1.0.10"]
+xlrd = ["xlrd>=2.0.2"]
+
+all = [
+    "openpyxl>=3.1.5",
+    "pyxlsb>=1.0.10",
+    "xlrd>=2.0.2",
+]

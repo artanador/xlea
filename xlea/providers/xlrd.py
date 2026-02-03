@@ -14,6 +14,14 @@ from xlea.providers.proto import ProviderProto
 
 class XLRDProvider(ProviderProto):
     def __init__(self, path, sheet: Optional[str] = None):
+        try:
+            import xlrd
+        except ImportError as e:
+            raise ProviderError(
+                "XLRDProvider requires 'xlrd'. Install it with: pip install xlea[xlrd]"
+            ) from e
+
+        self._xlrd = xlrd
         self._path = path
         self._sheet = sheet
 
