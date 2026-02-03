@@ -6,11 +6,7 @@ class ProviderError(XLEAError):
     pass
 
 
-class HeaderNotFound(XLEAError):
-    pass
-
-
-class MissingRequiredColumnError(XLEAError):
+class HeaderNotFoundError(XLEAError):
     pass
 
 

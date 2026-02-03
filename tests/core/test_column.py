@@ -158,3 +158,9 @@ def test_validator_incompatible_return_type(validator, expectation):
 
     with expectation:
         col.validate_value("0")
+
+
+def test_name():
+    col = Column("Email")
+
+    assert col.name == "Email"

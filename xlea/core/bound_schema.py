@@ -2,7 +2,7 @@ from typing import Iterable, Union
 
 from xlea.core.column import _Column
 from xlea.core.constants import DEFAULT_DELIMITER
-from xlea.exc import HeaderNotFound, MissingRequiredColumnError
+from xlea.exc import HeaderNotFoundError
 
 
 class BoundSchema:
@@ -39,11 +39,6 @@ class BoundSchema:
                     continue
                 col.index = idx
                 col.name = val
-
-            if col._required and col.index == -1:
-                raise MissingRequiredColumnError(
-                    f"Cant find required column '{col._pattern}'"
-                )
 
     def _flatten_candidates(
         self,
@@ -100,7 +95,7 @@ class BoundSchema:
     def resolve(self):
         header, header_index = self._find_header(self._get_required_columns())
         if header is None:
-            raise HeaderNotFound("Header not found")
+            raise HeaderNotFoundError("Header not found")
 
         self._bind_columns(header)
         self._data_row = header_index
