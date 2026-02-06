@@ -6,7 +6,7 @@ class ProviderError(XLEAError):
     pass
 
 
-class HeaderNotFoundError(XLEAError):
+class HeaderNotFound(XLEAError):
     pass
 
 
