@@ -58,7 +58,7 @@ def read(
 
     for i, row in enumerate(islice(rows, resolved_schema._data_row, None)):
         row_object = RowType(row, i, resolved_schema)
-        if not hasattr(row_object, "row_index"):
+        if not row_object._valid:
             continue
         yield row_object
 

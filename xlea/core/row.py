@@ -12,12 +12,12 @@ def make_row_type(schema):
 
 class RowObject:
     def __init__(self, row, row_idx, schema: BoundSchema):
-        valid, skip, col_index = self._validate(row, schema)
-        if not valid and not skip:
+        self._valid, skip, col_index = self._validate(row, schema)
+        if not self._valid and not skip:
             raise InvalidRowError(
                 f"The value in row {row_idx} failed validation: {row[col_index]}"
             )
-        if not valid:
+        if not self._valid:
             return
         self._row = row
         self._row_idx = row_idx
