@@ -1,4 +1,4 @@
-from typing import Iterable, Union
+from typing import Iterable, Iterator, Union
 
 from xlea.core.column import _Column
 from xlea.core.constants import DEFAULT_DELIMITER
@@ -6,7 +6,7 @@ from xlea.exc import HeaderNotFound
 
 
 class BoundSchema:
-    def __init__(self, rows: tuple[Iterable, ...], schema):
+    def __init__(self, rows: Iterator[Iterable], schema):
         self._rows = rows
         self._schema = schema
         self._data_row = -1

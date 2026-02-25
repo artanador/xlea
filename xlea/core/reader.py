@@ -1,5 +1,6 @@
-from typing import Iterator, overload, Iterable, Type, Optional, Union
+from itertools import islice, tee
 from pathlib import Path
+from typing import Iterator, overload, Iterable, Type, Optional, Union
 
 from xlea.core.types import TSchema
 from xlea.core.row import make_row_type
@@ -50,13 +51,12 @@ def read(
     if schema is None:
         return rows
 
-    if not isinstance(rows, tuple):
-        rows = tuple(rows)
+    rows, rows_copy = tee(rows)
 
-    resolved_schema = BoundSchema(rows, schema).resolve()
+    resolved_schema = BoundSchema(rows_copy, schema).resolve()
     RowType = make_row_type(schema)
 
-    for i, row in enumerate(rows[resolved_schema._data_row :]):
+    for i, row in enumerate(islice(rows, resolved_schema._data_row, None)):
         row_object = RowType(row, i, resolved_schema)
         if not hasattr(row_object, "row_index"):
             continue
