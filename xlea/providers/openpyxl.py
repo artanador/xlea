@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Iterable, Optional
 
 from xlea.exc import ProviderError
 from xlea.providers.proto import ProviderProto
@@ -17,7 +17,7 @@ class OpenPyXlProvider(ProviderProto):
         self._path = path
         self._sheet = sheet
 
-    def rows(self):
+    def rows(self) -> Iterable[Iterable]:
         book = self._openpyxl.load_workbook(self._path, read_only=True)
         sheet = book.active if self._sheet is None else book[self._sheet]
         if sheet is None:

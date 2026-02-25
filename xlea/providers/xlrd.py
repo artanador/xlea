@@ -1,14 +1,6 @@
-from typing import Optional
+from typing import Iterable, Optional
 
 from xlea.exc import ProviderError
-
-try:
-    import xlrd
-except ImportError:
-    raise ProviderError(
-        "xlrd not found, ensure that you installed it:\npip install xlrd"
-    )
-
 from xlea.providers.proto import ProviderProto
 
 
@@ -25,8 +17,8 @@ class XLRDProvider(ProviderProto):
         self._path = path
         self._sheet = sheet
 
-    def rows(self):
-        book = xlrd.open_workbook(self._path, on_demand=True)
+    def rows(self) -> Iterable[Iterable]:
+        book = self._xlrd.open_workbook(self._path, on_demand=True)
         if self._sheet:
             sheet = book.sheet_by_name(self._sheet)
         else:

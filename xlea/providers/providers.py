@@ -4,14 +4,17 @@ from xlea.providers.proto import ProviderProto
 from xlea.providers.pyxlsb import PyXLSBProvider
 from xlea.providers.xlrd import XLRDProvider
 
-_PROVIDERS = {
+_PROVIDERS: dict[str, type[ProviderProto]] = {
     ".xlsx": OpenPyXlProvider,
+    ".xlsm": OpenPyXlProvider,
+    ".xltx": OpenPyXlProvider,
+    ".xltm": OpenPyXlProvider,
     ".xls": XLRDProvider,
     ".xlsb": PyXLSBProvider,
 }
 
 
-def register_provider(ext: str, provider: ProviderProto):
+def register_provider(ext: str, provider: type[ProviderProto]):
     """
     Register a data provider for a file extension.
 

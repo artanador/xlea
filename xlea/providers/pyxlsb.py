@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Iterable, Optional
 
 from xlea.exc import ProviderError
 from xlea.providers.proto import ProviderProto
@@ -17,7 +17,7 @@ class PyXLSBProvider(ProviderProto):
         self._path = path
         self._sheet = sheet
 
-    def rows(self):
+    def rows(self) -> Iterable[Iterable]:
         with self._pyxlsb.open_workbook(self._path) as book:
             if self._sheet:
                 idx = book.sheets.index(self._sheet)
@@ -26,4 +26,4 @@ class PyXLSBProvider(ProviderProto):
                 sheet = book.get_sheet(1)
             if sheet is None:
                 raise ProviderError("Sheet not found")
-            return (tuple(c.v for c in r) for r in sheet.rows())
+            yield from (tuple(c.v for c in r) for r in sheet.rows())
