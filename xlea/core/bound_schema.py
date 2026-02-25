@@ -2,7 +2,7 @@ from typing import Iterable, Union
 
 from xlea.core.column import _Column
 from xlea.core.constants import DEFAULT_DELIMITER
-from xlea.exc import HeaderNotFoundError
+from xlea.exc import HeaderNotFound
 
 
 class BoundSchema:
@@ -95,7 +95,7 @@ class BoundSchema:
     def resolve(self):
         header, header_index = self._find_header(self._get_required_columns())
         if header is None:
-            raise HeaderNotFoundError("Header not found")
+            raise HeaderNotFound("Header not found")
 
         self._bind_columns(header)
         self._data_row = header_index
