@@ -152,9 +152,6 @@ class _Column(Generic[T]):
         self._validator = validator
         self._skip_invalid_row = skip_invalid_row
 
-        self._index = None
-        self._name = None
-        self._attr_name = None
         self._type: Optional[T] = None
 
     def __set_name__(self, owner, name):
@@ -165,16 +162,18 @@ class _Column(Generic[T]):
         if instance is None:
             return self
 
-        if self._index is None:
+        bindings = instance._schema._column_bindings.get(self._attr_name)
+        if bindings is None:
             return self._default
 
-        value = instance._row[self._index]
+        idx, _ = bindings
+        value = instance._row[idx]
         if self._type is not None:
             try:
                 return self._type(value)
             except ValueError:
                 raise TypeError(
-                    f"invalid value {value!r} in row {self._index}: "
+                    f"invalid value {value!r} in row {instance._row_idx}: "
                     f"expected type {self._type.__name__}, got {type(value).__name__}"
                 )
 
@@ -206,19 +205,3 @@ class _Column(Generic[T]):
             )
 
         return result
-
-    @property
-    def index(self) -> Union[int, None]:
-        return self._index
-
-    @property
-    def name(self) -> Union[str, None]:
-        return self._name
-
-    @index.setter
-    def index(self, value: int):
-        self._index = value
-
-    @name.setter
-    def name(self, value: str):
-        self._name = value

@@ -2,7 +2,7 @@ from typing import Iterable, Iterator, Union
 
 from xlea.core.column import _Column
 from xlea.core.constants import DEFAULT_DELIMITER
-from xlea.exc import HeaderNotFound
+from xlea.exc import HeaderNotFound, MissingRequiredColumns
 
 
 class BoundSchema:
@@ -15,30 +15,20 @@ class BoundSchema:
         self._delimiter = self._config.get("delimiter", DEFAULT_DELIMITER)
         self._header_rows = self._config.get("header_rows", 1)
 
-        self._columns: dict[str, _Column] = {
+        self._column_bindings: dict[str, tuple[str, Union[int, None], _Column]] = {}
+        self._columns_by_attr: dict[str, _Column] = {
             attr: col
             for attr, col in schema.__dict__.items()
             if isinstance(col, _Column)
         }
 
-    def _is_header(
-        self,
-        required: tuple[_Column, ...],
-        row: Union[tuple[str, ...], list],
-    ) -> bool:
-        for c in required:
-            if not any(c.matching(str(val)) for val in row):
-                return False
-
-        return True
-
     def _bind_columns(self, header):
-        for col in self._columns.values():
+        for attr, col in self._columns_by_attr.items():
             for idx, val in enumerate(header):
                 if not col.matching(str(val)):
                     continue
-                col.index = idx
-                col.name = val
+                self._column_bindings[attr] = (str(val), idx, col)
+                break
 
     def _flatten_candidates(
         self,
@@ -64,38 +54,55 @@ class BoundSchema:
             out.append(self._delimiter.join(parts))
         return out
 
-    def _build_header_candidatte(self, start: int):
-        rows = []
+    def _build_header_candidatte(self, row):
+        rows = [tuple(str(v) for v in row)]
 
-        for offset in range(self._header_rows):
-            idx = start + offset
-            if idx >= len(self._rows):
-                return None
+        for _ in range(self._header_rows - 1):
+            row = next(self._rows)
 
-            rows.append(tuple(str(v) for v in self._rows[idx]))
+            rows.append(tuple(str(v) for v in row))
 
             if self._header_rows == 1:
                 return rows[0]
 
         return self._flatten_candidates(tuple(zip(*rows)))
 
-    def _find_header(self, required: tuple[_Column, ...]):
-        for row_index in range(len(self._rows)):
-            header = self._build_header_candidatte(
-                start=row_index,
-            )
+    def _is_header(
+        self,
+        required: tuple[_Column, ...],
+        row: Union[tuple[str, ...], list],
+    ) -> bool:
+        for c in required:
+            if not any(c.matching(str(val)) for val in row):
+                return False
 
-            if header and self._is_header(required, header):
+        return True
+
+    def _find_header(self, required: tuple[_Column, ...]):
+        best_missing = None
+        for row_index, row in enumerate(self._rows):
+            header = self._build_header_candidatte(row)
+            if not header:
+                continue
+
+            if self._is_header(required, header):
                 return header, row_index + self._header_rows
-        return None, None
+
+            found = {c for c in required if any(c.matching(str(val)) for val in header)}
+            if best_missing is None or len(found) > len(best_missing[0]):
+                missing = [c for c in required if c not in found]
+                best_missing = (found, missing)
+
+        if best_missing:
+            missing_names = ",".join(str(c._pattern) for c in best_missing[1])
+            raise MissingRequiredColumns(f"Missing columns: {missing_names}")
+        raise HeaderNotFound("Header not found")
 
     def _get_required_columns(self) -> tuple[_Column, ...]:
-        return tuple(c for c in self._columns.values() if c._required)
+        return tuple(c for c in self._columns_by_attr.values() if c._required)
 
     def resolve(self):
         header, header_index = self._find_header(self._get_required_columns())
-        if header is None:
-            raise HeaderNotFound("Header not found")
 
         self._bind_columns(header)
         self._data_row = header_index

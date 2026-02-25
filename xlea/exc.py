@@ -10,6 +10,10 @@ class HeaderNotFound(XLEAError):
     pass
 
 
+class MissingRequiredColumns(HeaderNotFound):
+    pass
+
+
 class InvalidRowError(XLEAError):
     pass
 

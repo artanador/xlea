@@ -99,22 +99,6 @@ def test_default_value(default, expectation):
 
 
 @pytest.mark.parametrize(
-    "index, expectation",
-    [
-        (1, 1),
-        (None, None),
-    ],
-)
-def test_set_index(index, expectation):
-    col = Column("Column")
-
-    assert col.index is None
-
-    col.index = index
-    assert col.index == expectation
-
-
-@pytest.mark.parametrize(
     "validator, expectation",
     [
         (bool, bool),
