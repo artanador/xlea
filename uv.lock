@@ -34,8 +34,8 @@ wheels = [
 
 [[package]]
 name = "xlea"
-version = "1.0.0"
-source = { virtual = "." }
+version = "1.0.1"
+source = { editable = "." }
 dependencies = [
     { name = "openpyxl" },
     { name = "pyxlsb" },

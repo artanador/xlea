@@ -1,6 +1,6 @@
 [project]
 name = "xlea"
-version = "1.0.0"
+version = "1.0.1"
 description = "python library that makes it easy to convert Excel tables into ORM-like objects"
 readme = "README.md"
 requires-python = ">=3.9"

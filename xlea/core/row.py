@@ -12,6 +12,7 @@ def make_row_type(schema):
 
 class RowObject:
     def __init__(self, row, row_idx, schema: BoundSchema):
+        row = self._normalize_row(row, schema)
         valid, skip, col_index = self._validate(row, schema)
         if not valid and not skip:
             raise InvalidRowError(
@@ -35,6 +36,15 @@ class RowObject:
             if not valid:
                 return False, col._skip_invalid_row, col.index
         return True, False, None
+
+    def _normalize_row(self, row, schema: BoundSchema):
+        max_index = max(
+            (c.index for c in schema._columns.values() if c.index is not None),
+            default=0,
+        )
+        if len(row) <= max_index:
+            return row + (None,) * (max_index - len(row) + 1)
+        return row
 
     def __contains__(self, key):
         return key in self._col_names
