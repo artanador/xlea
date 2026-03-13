@@ -55,9 +55,12 @@ def read(
 
     resolved_schema = BoundSchema(rows, schema).resolve()
     RowType = make_row_type(schema)
+    return _iter_rows(rows, resolved_schema, RowType)
 
+
+def _iter_rows(rows, resolved_schema: BoundSchema, row_type):
     for i, row in enumerate(rows[resolved_schema._data_row :]):
-        row_object = RowType(row, i, resolved_schema)
+        row_object = row_type(row, i, resolved_schema)
         if not hasattr(row_object, "row_index"):
             continue
         yield row_object
