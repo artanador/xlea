@@ -1,17 +1,29 @@
 [project]
 name = "xlea"
 version = "1.0.2"
-description = "python library that makes it easy to convert Excel tables into ORM-like objects"
+description = "Python library that makes it easy to convert Excel tables into ORM-like objects"
 readme = "README.md"
 requires-python = ">=3.9"
-dependencies = [
-    "openpyxl>=3.1.5",
-    "pyxlsb>=1.0.10",
-    "xlrd>=2.0.2",
+license = { text = "MIT" }
+keywords = ["excel", "xlsx", "xls", "parser", "schema", "model", "orm"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Office/Business :: Financial :: Spreadsheet",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
 ]
+dependencies = []
 authors = [
     { name = "ArtemDorozhkin", email = "artanador@tutamail.com" }
 ]
+
+[project.urls]
+Homepage = "https://github.com/artanador/xlea"
+Repository = "https://github.com/artanador/xlea"
+Issues = "https://github.com/artanador/xlea/issues"
 
 [build-system]
 requires = ["hatchling"]
