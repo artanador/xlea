@@ -6,9 +6,6 @@ Core Concepts
 This page explains how xlea works internally. Understanding these concepts
 will help you use the library predictably and debug edge cases.
 
-.. contents:: On this page
-   :local:
-   :depth: 2
 
 The Schema
 ----------

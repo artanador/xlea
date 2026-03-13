@@ -7,8 +7,6 @@ xlea supports per-column value validation before type conversion.
 A validator is a plain callable that returns ``True`` if the value is
 acceptable and ``False`` otherwise.
 
-.. contents:: On this page
-   :local:
 
 Attaching a validator
 ---------------------

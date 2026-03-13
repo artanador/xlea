@@ -8,8 +8,6 @@ iterable of rows (each row being an iterable of cell values). This design
 lets you feed xlea from CSV files, databases, in-memory lists, or any
 other tabular source.
 
-.. contents:: On this page
-   :local:
 
 The provider protocol
 ---------------------

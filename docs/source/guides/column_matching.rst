@@ -7,8 +7,6 @@ xlea supports four strategies for matching a column descriptor to a header
 cell. All strategies are set via the ``pattern`` argument of
 :func:`~xlea.Column`.
 
-.. contents:: On this page
-   :local:
 
 Exact string match
 ------------------

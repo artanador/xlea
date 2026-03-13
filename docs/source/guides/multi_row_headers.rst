@@ -7,8 +7,6 @@ Some spreadsheets use two or more header rows — typically a category row
 followed by a sub-header row. xlea handles this with the ``@config``
 decorator.
 
-.. contents:: On this page
-   :local:
 
 Example spreadsheet layout
 ---------------------------
