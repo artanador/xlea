@@ -1,0 +1,4 @@
+Column
+======
+
+.. autofunction:: xlea.Column
