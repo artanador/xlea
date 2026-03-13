@@ -1,10 +1,12 @@
 # XLEA
 
+[![PyPI version](https://img.shields.io/pypi/v/xlea)](https://pypi.org/project/xlea/)
+[![Python versions](https://img.shields.io/pypi/pyversions/xlea)](https://pypi.org/project/xlea/)
+[![Documentation](https://readthedocs.org/projects/xlea/badge/?version=latest)](https://xlea.readthedocs.io/en/latest/)
+
 `xlea` is a python library that makes it easy to convert Excel tables into ORM-like objects.
 
 The library focised on **schema-driven** parsing of tabular data, where column resolution, validation and type conversion are handled explicitly and predictably.
-
-> ⚠️ XLEA is a work in progress. The public API is stabilizing, and core concepts are already in place.
 
 ## Features
 
@@ -53,7 +55,7 @@ pip install xlea
 ```python
 from typing import Optional
 
-from xlea import Schema, Column
+from xlea import Schema, Column, config
 
 
 age_name = lambda name: name.startswith("Age")
