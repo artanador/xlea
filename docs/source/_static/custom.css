@@ -1,0 +1,31 @@
+/* xlea custom styles */
+
+/* Subtle background for code examples in admonitions */
+.admonition.note .highlight {
+    background: transparent;
+}
+
+/* Make parameter tables more readable */
+.field-list dt {
+    font-weight: 600;
+}
+
+/* Better spacing for API reference */
+dl.py.function > dt,
+dl.py.class > dt,
+dl.py.method > dt {
+    padding: 6px 12px;
+    border-radius: 4px;
+}
+
+/* Tasteful horizontal rule between top-level members */
+dl.py + dl.py {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-background-border);
+}
+
+/* Inline code looks better slightly larger */
+code.literal {
+    font-size: 0.9em;
+}
