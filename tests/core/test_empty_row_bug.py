@@ -1,25 +1,11 @@
 # tests/test_empty_row_bug.py
 import pytest
 
-from xlea import Schema, Column, read
+from xlea import read
+from xlea.exc import HeaderNotFound
 
 
-class PersonSchema(Schema):
-    """Schema definition for testing purposes, representing a person record."""
-
-    id: str = Column("ID")
-    name: str = Column("Name")
-
-
-class ListProvider:
-    def __init__(self, rows: list[tuple], *args, **kwargs):
-        self._rows = rows
-
-    def rows(self):
-        return iter(self._rows)
-
-
-def test_empty_tuple_row_does_not_raise_index_error():
+def test_empty_tuple_row_does_not_raise_index_error(provider, person_schema):
     """
     Regression test: an empty tuple in the row stream must not raise IndexError.
 
@@ -50,7 +36,7 @@ def test_empty_tuple_row_does_not_raise_index_error():
         (),
         ("2", "Bob"),
     ]
-    result = list(read(ListProvider(rows), schema=PersonSchema))
+    result = list(read(provider(rows), schema=person_schema))
 
     assert len(result) == 3
     assert result[0].id == "1"
@@ -58,7 +44,7 @@ def test_empty_tuple_row_does_not_raise_index_error():
     assert result[2].id == "2"
 
 
-def test_only_empty_rows_returns_empty_list():
+def test_only_empty_rows_returns_empty_list(provider, person_schema):
     """
     Edge case: a file containing only a header followed by empty rows yields no objects.
 
@@ -80,6 +66,42 @@ def test_only_empty_rows_returns_empty_list():
         (),
     ]
 
-    result = list(read(ListProvider(rows), schema=PersonSchema))
+    result = list(read(provider(rows), schema=person_schema))
 
     assert len(result) == 2
+
+
+@pytest.mark.parametrize(
+    "header_row",
+    [
+        ("id", "Name"),
+        ("Num", "Name"),
+        ("First", "Name"),
+    ],
+)
+def test_read_multi_header_with_multi_header_schema(
+    provider,
+    multi_header_schema,
+    header_row,
+):
+    data = read(
+        provider=provider(
+            [
+                header_row,
+                ("1", "Alice"),
+            ]
+        ),
+        schema=multi_header_schema,
+    )
+    assert len(list(data)) == 1
+
+
+def test_multi_header_not_found(provider, multi_header_schema):
+    provider = provider(
+        [
+            ("No exists", "Name"),
+            ("1", "Alice"),
+        ]
+    )
+    with pytest.raises(HeaderNotFound):
+        read(provider=provider, schema=multi_header_schema)
