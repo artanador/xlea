@@ -9,3 +9,9 @@ wheels/
 # Virtual environments
 .venv
 .issues
+
+# Pycharm files
+.idea
+
+# Mac OS files
+.DS_Store
