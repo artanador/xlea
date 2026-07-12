@@ -12,34 +12,19 @@ See: https://github.com/artanador/xlea/issues/3
 
 import pytest
 
-from xlea import Schema, Column, read
+import xlea
 from xlea.exc import HeaderNotFound
 
 
-class PersonSchema(Schema):
-    """Minimal schema used across all test cases."""
-
-    id: str = Column("ID")
-    name: str = Column("Name")
-
-
-class ListProvider:
-    """In-memory provider that wraps a plain list of tuples."""
-
-    def __init__(self, rows: list):
-        self._rows = rows
-
-    def rows(self):
-        return iter(self._rows)
-
-
-def test_read_raises_header_not_found_immediately_when_no_matching_header():
+def test_read_raises_header_not_found_immediately_when_no_matching_header(
+    provider, person_schema
+):
     """
     `read()` must raise `HeaderNotFound` at the call site, not during iteration,
     when the provider yields no row that matches the required schema columns.
 
     Arrange:
-        A provider whose rows contain no header matching PersonSchema
+        A provider whose rows contain no header matching person_schema
         (columns "ID" and "Name" are absent).
 
     Act:
@@ -48,7 +33,7 @@ def test_read_raises_header_not_found_immediately_when_no_matching_header():
     Assert:
         `HeaderNotFound` is raised before any iteration occurs.
     """
-    provider = ListProvider(
+    provider = provider(
         [
             ("Foo", "Bar"),
             ("1", "Alice"),
@@ -56,10 +41,12 @@ def test_read_raises_header_not_found_immediately_when_no_matching_header():
     )
 
     with pytest.raises(HeaderNotFound):
-        read(provider, schema=PersonSchema)
+        xlea.read(provider, schema=person_schema)
 
 
-def test_read_raises_header_not_found_immediately_when_rows_are_empty():
+def test_read_raises_header_not_found_immediately_when_rows_are_empty(
+    provider, person_schema
+):
     """
     `read()` must raise `HeaderNotFound` eagerly when the provider yields
     no rows at all.
@@ -70,7 +57,7 @@ def test_read_raises_header_not_found_immediately_when_rows_are_empty():
     Act / Assert:
         `HeaderNotFound` is raised at the `read()` call site.
     """
-    provider = ListProvider([])
+    provider = provider([])
 
     with pytest.raises(HeaderNotFound):
-        read(provider, schema=PersonSchema)
+        xlea.read(provider, schema=person_schema)
