@@ -10,7 +10,7 @@ T = TypeVar("T")
 
 @overload
 def Column(  # type: ignore[reportInconsistentOverload]
-    pattern: Union[str, Pattern[str], Callable[[str], bool]],
+    pattern: Union[str, tuple[str], Pattern[str], Callable[[str], bool]],
     ignore_case: bool = False,
     required: bool = True,
     default: Optional[T] = None,
@@ -18,8 +18,10 @@ def Column(  # type: ignore[reportInconsistentOverload]
     validator: Union[Callable[[str], bool], None] = None,
     skip_invalid_row=False,
 ) -> T: ...
+
+
 def Column(
-    pattern: Union[str, Pattern[str], Callable[[str], bool]],
+    pattern: Union[str, tuple[str], Pattern[str], Callable[[str], bool]],
     ignore_case: bool = False,
     required: bool = True,
     default: Optional[T] = None,
@@ -36,10 +38,11 @@ def Column(
 
     Parameters
     ----------
-    pattern : str | Pattern[str] | Callable[[str], bool]
+    pattern : str | tuple | Pattern[str] | Callable[[str], bool]
         Header matching strategy:
 
         - ``str``: exact column name match
+        - ``tuple``: extract column with cases include in tuple
         - ``Pattern``: regular expression applied to header values
         - ``Callable``: custom predicate receiving a header cell value
           and returning ``True`` if it matches
@@ -108,7 +111,7 @@ class _Column(Generic[T]):
 
     Parameters
     ----------
-    pattern: str | Pattern[str] | Callable[[str], bool]
+    pattern: str | tuple | Pattern[str] | Callable[[str], bool]
         Column name (or pattern, or callable) or hierarchical path in the header.
     required : bool, default=True
         Whether the column must be present.
@@ -190,6 +193,9 @@ class _Column(Generic[T]):
 
         if callable(self._pattern):
             return self._pattern(value)
+
+        if isinstance(self._pattern, tuple):
+            return value.casefold() in tuple(map(str.casefold, self._pattern))
 
         return value == self._pattern
 
